@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/weekly-status-report-tool-223638-223658/frontend_app"
+}
