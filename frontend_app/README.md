@@ -1,82 +1,103 @@
-# Lightweight React Template for KAVIA
+# Weekly Status Report - React Frontend
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+React app for DigitalT3 Weekly Status Report Platform. Authentication is handled via Supabase (email/password or magic link). Users can create weekly reports with auto-save drafts and view history.
 
 ## Features
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+- Supabase auth (email/password, magic link)
+- Dashboard layout with Executive Gray theme
+- Weekly report editor with auto-save to `weekly_reports`
+- Submit/publish flow (`draft` -> `submitted`)
+- History view with status and date filters
+- Graceful handling for missing Supabase env vars
+
+## Requirements
+
+- Node.js 18+
+- Supabase project (URL + anon key)
+- Table: `weekly_reports`
+
+### Supabase Table Schema
+
+Run this SQL in Supabase:
+
+```sql
+create table if not exists public.weekly_reports (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  week_start date not null,
+  status text not null check (status in ('draft','submitted')),
+  sections jsonb not null default '{}'::jsonb,
+  updated_at timestamp with time zone not null default now()
+);
+
+-- Optional helpful indexes
+create index if not exists weekly_reports_user_week_idx on public.weekly_reports (user_id, week_start);
+create index if not exists weekly_reports_status_idx on public.weekly_reports (status);
+```
+
+Note: Ensure Row Level Security (RLS) is configured appropriately to restrict records to the owning user (`user_id = auth.uid()`).
+
+## Environment Variables
+
+Create a `.env` file in `frontend_app/`:
+
+```
+REACT_APP_SUPABASE_URL=YOUR_SUPABASE_URL
+REACT_APP_SUPABASE_KEY=YOUR_SUPABASE_ANON_KEY
+REACT_APP_FRONTEND_URL=http://localhost:3000
+```
+
+If `REACT_APP_SUPABASE_URL` or `REACT_APP_SUPABASE_KEY` are missing, the UI will show a config error.
+
+You can copy from the provided `.env.example`.
 
 ## Getting Started
 
-In the project directory, you can run:
+Install dependencies and run the app:
 
-### `npm start`
-
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-### `npm test`
-
-Launches the test runner in interactive watch mode.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-## Customization
-
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
+```bash
+npm install
+npm start
 ```
 
-### Components
+The app will open at http://localhost:3000
 
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
+## Pages
 
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
+- `/login` – Sign in via password or magic link.
+- `/dashboard` – Overview with quick actions.
+- `/weekly-report` – Editor with auto-save and submit.
+- `/history` – Report list with filters.
 
-## Learn More
+## Code Structure
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- `src/supabaseClient.js` – Supabase initialization with env checks
+- `src/transports/` – (reserved for future API clients)
+- `src/contexts/AuthContext.js` – Auth provider and hooks
+- `src/components/Layout/*` – Dashboard shell (Topbar, Sidebar, Layout)
+- `src/components/UI/*` – Reusable UI components
+- `src/pages/*` – Screens
+- `src/theme.css` – Executive Gray theme
 
-### Code Splitting
+## Styling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The "Executive Gray" theme uses charcoal and silver tones, with professional dashboard layout and subtle shadows.
 
-### Analyzing the Bundle Size
+## Security Notes
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- No secrets are hardcoded. Env variables are required.
+- Ensure RLS and policies in Supabase enforce `user_id = auth.uid()`.
+- Input validation is implemented client-side for basic checks.
 
-### Making a Progressive Web App
+## Scripts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- `npm start` – Start dev server
+- `npm run build` – Build production bundle
+- `npm test` – Run tests (CRA defaults)
 
-### Advanced Configuration
+## Troubleshooting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- If login fails with magic link locally, ensure `REACT_APP_FRONTEND_URL` matches your local URL and is configured in Supabase auth settings.
+- If you see "Config Error" badge, set `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_KEY` in `.env`.
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
