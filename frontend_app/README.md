@@ -10,6 +10,7 @@ React app for DigitalT3 Weekly Status Report Platform. Authentication is handled
 - Submit/publish flow (`draft` -> `submitted`)
 - History view with status and date filters
 - Graceful handling for missing Supabase env vars
+- TEMP: Auth bypass feature flag for demos/local usage
 
 ## Requirements
 
@@ -46,10 +47,11 @@ Create a `.env` file in `frontend_app/`:
 REACT_APP_SUPABASE_URL=YOUR_SUPABASE_URL
 REACT_APP_SUPABASE_KEY=YOUR_SUPABASE_ANON_KEY
 REACT_APP_FRONTEND_URL=http://localhost:3000
+# Feature flags (comma-separated). Set AUTH_BYPASS to bypass Supabase and always sign in a default user.
+REACT_APP_FEATURE_FLAGS=AUTH_BYPASS
 ```
 
-If `REACT_APP_SUPABASE_URL` or `REACT_APP_SUPABASE_KEY` are missing, the UI will show a config error.
-
+If `REACT_APP_SUPABASE_URL` or `REACT_APP_SUPABASE_KEY` are missing, the UI will show a config error unless `AUTH_BYPASS` is enabled.
 You can copy from the provided `.env.example`.
 
 ## Getting Started
@@ -65,7 +67,7 @@ The app will open at http://localhost:3000
 
 ## Pages
 
-- `/login` – Sign in via password or magic link.
+- `/login` – Sign in via password or magic link (or instant sign-in in AUTH_BYPASS mode).
 - `/dashboard` – Overview with quick actions.
 - `/weekly-report` – Editor with auto-save and submit.
 - `/history` – Report list with filters.
@@ -74,7 +76,7 @@ The app will open at http://localhost:3000
 
 - `src/supabaseClient.js` – Supabase initialization with env checks
 - `src/transports/` – (reserved for future API clients)
-- `src/contexts/AuthContext.js` – Auth provider and hooks
+- `src/contexts/AuthContext.js` – Auth provider and hooks (supports AUTH_BYPASS)
 - `src/components/Layout/*` – Dashboard shell (Topbar, Sidebar, Layout)
 - `src/components/UI/*` – Reusable UI components
 - `src/pages/*` – Screens
@@ -89,6 +91,7 @@ The "Executive Gray" theme uses charcoal and silver tones, with professional das
 - No secrets are hardcoded. Env variables are required.
 - Ensure RLS and policies in Supabase enforce `user_id = auth.uid()`.
 - Input validation is implemented client-side for basic checks.
+- AUTH_BYPASS is intended only for local/demo environments. Do not enable in production.
 
 ## Scripts
 
@@ -99,5 +102,4 @@ The "Executive Gray" theme uses charcoal and silver tones, with professional das
 ## Troubleshooting
 
 - If login fails with magic link locally, ensure `REACT_APP_FRONTEND_URL` matches your local URL and is configured in Supabase auth settings.
-- If you see "Config Error" badge, set `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_KEY` in `.env`.
-
+- If you see "Config Error" badge, set `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_KEY` in `.env`, or enable `REACT_APP_FEATURE_FLAGS=AUTH_BYPASS` for demos.

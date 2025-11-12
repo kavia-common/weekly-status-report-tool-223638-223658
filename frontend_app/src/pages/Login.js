@@ -1,5 +1,6 @@
 /**
  * Login page with email/password and magic link options.
+ * In AUTH_BYPASS mode: any input will authenticate a default user and navigate to dashboard.
  */
 // PUBLIC_INTERFACE
 import React, { useState } from 'react';
@@ -31,15 +32,16 @@ export default function Login() {
     try {
       if (mode === 'password') {
         if (password.length < 6) {
-          setErr('Password must be at least 6 characters.');
-          return;
+          // In bypass mode this will still succeed; keep UI hint consistent
+          // but do not block submit hard to allow bypass login flows.
         }
         const { error } = await loginWithPassword(email, password);
         if (error) setErr(error.message || String(error));
+        // On success, ProtectedRoute will render dashboard based on user presence
       } else {
         const { error } = await sendMagicLink(email);
         if (error) setErr(error.message || String(error));
-        else setMsg('Magic link sent! Check your email.');
+        else setMsg('If AUTH_BYPASS is enabled, you are already signed in.');
       }
     } finally {
       setLoading(false);
@@ -51,7 +53,7 @@ export default function Login() {
       <div className="card">
         <h2 style={{ marginTop: 0, marginBottom: 6 }}>Sign in</h2>
         <div className="help" style={{ marginBottom: 12 }}>
-          Use your company email to sign in.
+          Use your company email to sign in. For demos, AUTH_BYPASS signs you in as a default user.
         </div>
         {envError && <Alert kind="error">{envError}</Alert>}
         {msg && <Alert kind="success">{msg}</Alert>}
@@ -69,7 +71,7 @@ export default function Login() {
           </div>
         </form>
         <div className="help" style={{ marginTop: 12 }}>
-          Note: New users may need to sign up via admin or Supabase invitation.
+          Temporary: Set REACT_APP_FEATURE_FLAGS=AUTH_BYPASS to enable local/demo sign-in without Supabase.
         </div>
       </div>
     </div>

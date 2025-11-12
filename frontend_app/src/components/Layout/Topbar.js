@@ -1,5 +1,6 @@
 /**
  * Topbar displaying brand and user actions.
+ * Note: In AUTH_BYPASS mode, envError is suppressed and user is always present post-login.
  */
 // PUBLIC_INTERFACE
 import React from 'react';
