@@ -22,13 +22,23 @@ React app for DigitalT3 Weekly Status Report Platform. Authentication is handled
 
 If you have a Postgres connection string available as REACT_APP_SUPABASE_DB_URL, you can create the `teams`, `profiles`, and `weekly_reports` tables (plus constraints and indexes) by running:
 
+Option 1:
 ```bash
 export REACT_APP_SUPABASE_DB_URL="postgres://postgres:<PASSWORD>@db.<project-ref>.supabase.co:5432/postgres"
 chmod +x ./run_supabase_sql_frontend.sh
 ./run_supabase_sql_frontend.sh
 ```
 
-The script executes each statement separately with `psql -v ON_ERROR_STOP=1 -c "<SQL>"` and is idempotent.
+Option 2 (auto-source from frontend_app/.env or .env.local):
+```bash
+chmod +x ./run_supabase_sql_via_env.sh
+./run_supabase_sql_via_env.sh
+```
+
+Both scripts execute each statement separately with `psql -v ON_ERROR_STOP=1 -c "<SQL>"` and are idempotent.
+
+Troubleshooting:
+- If you see a network error like "Network is unreachable", ensure outbound network access to Supabase Postgres is allowed from your environment and the DB URL is correct.
  
 ### Supabase Table Schema
 
